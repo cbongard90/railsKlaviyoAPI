@@ -24,19 +24,14 @@ class Api::V1::UsersController < ApplicationController
     @user = User.new(user_params)
 
     if @user.save
-      render json: @user, status: :created
+      # render json: @user, status: :ok
 
-      # Add user to Klaviyo list
-      http = Net::HTTP.new(URL.host, URL.port)
-      http.use_ssl = true
-      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      klaviyo_response = post_to_klaviyo(@user)
 
-      request = Net::HTTP::Post.new(URL)
-      request["Content-Type"] = "application/json"
-      request.body = "{\n\"profiles\": [\n{\n\"email\": \"#{@user.email}\",\n            \"phone_number\": \"#{@user.phone_number}\",\n            \"first_name\": \"#{@user.first_name}\",\n            \"last_name\": \"#{@user.last_name}\",\n            \"date_of_birth\": \"#{@user.date_of_birth}\", \"sms_consent\": true\n        }\n    ]\n}"
+      puts klaviyo_response
 
-      response = http.request(request)
-      puts response.read_body
+      render json: klaviyo_response, status: :ok
+
     else
       render json: @user.errors, status: :unprocessable_entity
     end
@@ -57,13 +52,27 @@ class Api::V1::UsersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_user
-      @user = User.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def user_params
-      params.require(:user).permit(:first_name, :last_name, :email, :phone_number, :date_of_birth)
-    end
+  # Use callbacks to share common setup or constraints between actions.
+  def set_user
+    @user = User.find(params[:id])
+  end
+
+  # Only allow a list of trusted parameters through.
+  def user_params
+    params.require(:user).permit(:first_name, :last_name, :email, :phone_number, :date_of_birth, :country, :sms_consent)
+  end
+
+  def post_to_klaviyo(user)
+    # Add user to Klaviyo list
+    http = Net::HTTP.new(URL.host, URL.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+    request = Net::HTTP::Post.new(URL)
+    request['Content-Type'] = 'application/json'
+    request.body = "{\n\"profiles\": [\n{\n\"email\": \"#{user.email}\",\n\"phone_number\": \"#{user.phone_number}\",\n\"first_name\":\"#{user.first_name}\",\n\"last_name\": \"#{user.last_name}\",\n \"date_of_birth\":\"#{user.date_of_birth}\",\"sms_consent\": #{user.sms_consent}\n}\n]\n}"
+    response = http.request(request)
+
+    response.read_body
+  end
 end
