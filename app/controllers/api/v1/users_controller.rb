@@ -2,7 +2,7 @@ require 'uri'
 require 'net/http'
 require 'openssl'
 
-URL = URI("https://a.klaviyo.com/api/v2/list/WjfAbK/members?api_key=#{ENV['KLAVIYO_API_KEY']}")
+URL = URI('https://a.klaviyo.com/api/v2/list/WjfAbK/members?api_key=pk_ab6748f47f0e3345b4f28680a10f6f64a3')
 
 class Api::V1::UsersController < ApplicationController
   # before_action :set_user, only: %i[ show update destroy ]
