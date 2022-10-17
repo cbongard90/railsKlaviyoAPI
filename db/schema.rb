@@ -10,7 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_10_12_074821) do
+ActiveRecord::Schema[7.0].define(version: 2022_10_17_055152) do
+  create_table "contacts", force: :cascade do |t|
+    t.string "first_name"
+    t.string "last_name"
+    t.string "email"
+    t.string "country"
+    t.string "phone_number"
+    t.date "date_of_birth"
+    t.boolean "sms_consent"
+    t.boolean "is_klavio_successful"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name"
     t.string "last_name"
@@ -22,4 +35,5 @@ ActiveRecord::Schema[7.0].define(version: 2022_10_12_074821) do
     t.boolean "sms_consent"
     t.string "country"
   end
+
 end
