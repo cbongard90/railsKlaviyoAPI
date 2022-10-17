@@ -9,12 +9,30 @@ class Api::V2::ContactsController < ApplicationController
   def create
     @contact = Contact.new(contact_params)
 
-    if @contact.save
-      # render json: @contact, status: :ok
+    # if @contact.save
+    #   # render json: @contact, status: :ok
+    #   klaviyo_response = post_to_klaviyo(@contact)
+    #   puts klaviyo_response
+    #   render json: klaviyo_response, status: :ok
+    # else
+    #   render json: @contact.errors, status: :unprocessable_entity
+    # end
+
+    if @contact.valid?
       klaviyo_response = post_to_klaviyo(@contact)
       puts klaviyo_response
-      render json: klaviyo_response, status: :ok
+
+      if klaviyo_response.include? "detail"
+        @contact.is_klavio_successful = false
+        @contact.save
+        render json: klaviyo_response, status: :unprocessable_entity
+      else
+        @contact.is_klavio_successful = true
+        @contact.save
+        render json: klaviyo_response, status: :ok
+      end
     else
+      puts "Contact is invalid"
       render json: @contact.errors, status: :unprocessable_entity
     end
   end
